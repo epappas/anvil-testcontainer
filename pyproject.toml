@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "anvil-testcontainer"
+version = "0.1.0"
+description = "A secure and reusable Anvil Ethereum test container manager"
+authors = ["Evangelos Pappas <epappas@evalonlabs.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "anvil_testcontainer" }]
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"
+web3 = "^7.6.0"
+python-dotenv = "^1.0.0"
+testcontainers = "^4.9.0"
+requests = "^2.31.0"
+docker = "^7.1.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pytest-cov = "^6.0.0"
+pytest-mock = "^3.0.0"
+pytest-xdist = "^3.0.0"
+black = "^24.10.0"
+pylint = "^3.3.1"
+python-dotenv = "^1.0.1"
+pytest-black = "^0.3.12"
+safety = "^3.2.13"
+bandit = "^1.8.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
