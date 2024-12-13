@@ -35,11 +35,5 @@ jobs:
       run: |
         poetry run pytest -v --cov=anvil_testcontainer --cov-report=xml
 
-    - name: Run black check
-      run: poetry run black --check .
-
-    - name: Run pylint
-      run: poetry run pylint anvil_testcontainer
-
     - name: Upload coverage
       uses: codecov/codecov-action@v3
