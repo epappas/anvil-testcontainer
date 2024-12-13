@@ -1,5 +1,5 @@
 import os
-
+from typing import cast
 from web3 import Web3
 from eth_typing import Hash32
 from anvil_testcontainer import AnvilContainer, ContainerConfig
@@ -25,10 +25,20 @@ ERC20_ABI = [
 ]
 
 
-def test_token_transfer():
-    # Configuration
+def test_token_transfer() -> None:
+    """
+    Test ERC20 token transfer functionality using Anvil container.
+    Tests DAI transfer between a whale account and recipient on a forked mainnet.
+    """
+    # Get API key with error handling
+    try:
+        alchemy_key = os.environ["ALCHEMY_API_KEY"]
+    except KeyError:
+        raise EnvironmentError("ALCHEMY_API_KEY environment variable is required")
+
     FORK_URL = os.getenv(
-        "ETH_RPC_URL", "https://eth-mainnet.alchemyapi.io/v2/your-api-key"
+        "ETH_RPC_URL",
+        f"https://eth-mainnet.alchemyapi.io/v2/{alchemy_key}",
     )
     DAI_ADDRESS = "0x6B175474E89094C44Da98b954EedeAC495271d0F"  # DAI token on mainnet
     WHALE_ADDRESS = "0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503"  # DAI whale address
@@ -62,19 +72,19 @@ def test_token_transfer():
         print(f"Initial recipient balance: {recipient_balance / 10**18:.2f} DAI")
 
         # Build and send transfer transaction
-        tx_data = dai_contract.encode_abi(
-            fn_name="transfer", args=[RECIPIENT, TRANSFER_AMOUNT]
-        )
+        tx_data = dai_contract.encode_abi("transfer", args=[RECIPIENT, TRANSFER_AMOUNT])
 
-        tx_hash = anvil.send_transaction(
-            from_address=WHALE_ADDRESS, to_address=DAI_ADDRESS, data=tx_data
-        )
+        try:
+            tx_hash = anvil.send_transaction(
+                from_address=WHALE_ADDRESS, to_address=DAI_ADDRESS, data=tx_data
+            )
 
-        # Wait for transaction to be mined
-        receipt = w3.eth.wait_for_transaction_receipt(
-            Hash32(bytes.fromhex(tx_hash[2:]))
-        )
-        assert receipt["status"] == 1, "Transaction failed"
+            # Wait for transaction to be mined
+            receipt = w3.eth.wait_for_transaction_receipt(tx_hash)  # type: ignore
+            if receipt["status"] != 1:
+                raise ValueError("Transaction failed")
+        except Exception as e:
+            raise RuntimeError(f"Transaction failed: {str(e)}")
 
         # Verify new balances
         new_whale_balance = dai_contract.functions.balanceOf(WHALE_ADDRESS).call()

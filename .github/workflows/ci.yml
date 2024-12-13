@@ -13,29 +13,33 @@ jobs:
       matrix:
         python-version: ["3.12"]
 
+    env:
+      ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Install Poetry
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
 
     - name: Install dependencies
-      run: poetry install
+      run: poetry install --with dev,test
 
     - name: Run tests
       run: |
-        poetry run pytest --cov=anvil_testcontainer --cov-report=xml
-    
+        poetry run pytest -v --cov=anvil_testcontainer --cov-report=xml
+
     - name: Run black check
       run: poetry run black --check .
-    
+
     - name: Run pylint
       run: poetry run pylint anvil_testcontainer
-    
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3

@@ -6,7 +6,7 @@ from web3.types import BlockData
 
 def test_time_manipulation():
     FORK_URL = os.getenv(
-        "ETH_RPC_URL", "https://eth-mainnet.alchemyapi.io/v2/your-api-key"
+        "ETH_RPC_URL", f"https://eth-mainnet.alchemyapi.io/v2/{os.environ['ALCHEMY_API_KEY']}"
     )
 
     with AnvilContainer(FORK_URL) as anvil:
