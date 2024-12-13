@@ -57,15 +57,11 @@ Here's a simple example to get you started:
 ```python
 from anvil_testcontainer import AnvilContainer
 
-# Using context manager for automatic cleanup
 with AnvilContainer("https://eth-mainnet.alchemyapi.io/v2/your-key") as anvil:
-    # Get Web3 instance
     web3 = anvil.get_web3()
     
-    # Check current block number
     print(f"Current block: {web3.eth.block_number}")
     
-    # Advance time by one day
     anvil.move_time(86400)
 ```
 
@@ -88,20 +84,16 @@ config = ContainerConfig(
 )
 
 with AnvilContainer(config) as anvil:
-    # Create a snapshot
     snapshot_id = anvil.create_snapshot()
-    
-    # Execute a transaction
+
     tx_hash = anvil.send_transaction(
         from_address="0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
         to_address="0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
         value=100000000000000000  # 0.1 ETH
     )
-    
-    # Check transaction receipt
+
     receipt = anvil.get_web3().eth.wait_for_transaction_receipt(tx_hash)
-    
-    # Revert to snapshot if needed
+
     anvil.revert_snapshot(snapshot_id)
 ```
 
@@ -188,14 +180,11 @@ We welcome contributions! Please follow these steps:
 ### Development Setup
 
 ```bash
-# Clone repository
 git clone https://github.com/epappas/anvil-testcontainer.git
 cd anvil-testcontainer
 
-# Install dependencies
 poetry install
 
-# Run tests
 poetry run pytest
 ```
 
