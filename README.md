@@ -57,7 +57,7 @@ Here's a simple example to get you started:
 ```python
 from anvil_testcontainer import AnvilContainer
 
-with AnvilContainer("https://eth-mainnet.alchemyapi.io/v2/your-key") as anvil:
+with AnvilContainer("<rpc provider url eg https://eth-mainnet.alchemyapi.io/v2..>") as anvil:
     web3 = anvil.get_web3()
     
     print(f"Current block: {web3.eth.block_number}")
@@ -75,7 +75,7 @@ Use the `ContainerConfig` class for more control:
 from anvil_testcontainer import AnvilContainer, ContainerConfig
 
 config = ContainerConfig(
-    fork_url="https://eth-mainnet.alchemyapi.io/v2/your-key",
+    fork_url="<provider URL>",
     fork_block_number=14000000,
     image="ghcr.io/foundry-rs/foundry:nightly",
     port=8545,
