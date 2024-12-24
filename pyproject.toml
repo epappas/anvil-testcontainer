@@ -9,7 +9,7 @@ packages = [{ include = "anvil_testcontainer" }]
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
-web3 = "^7.6.0"
+web3 = "^7.6.1"
 python-dotenv = "^1.0.0"
 testcontainers = "^4.9.0"
 requests = "^2.31.0"
@@ -21,10 +21,10 @@ pytest-cov = "^6.0.0"
 pytest-mock = "^3.0.0"
 pytest-xdist = "^3.0.0"
 black = "^24.10.0"
-pylint = "^3.3.1"
+pylint = "^3.3.3"
 python-dotenv = "^1.0.1"
-pytest-black = "^0.3.12"
-safety = "^3.2.13"
+pytest-black = "^0.6.0"
+safety = "^3.2.14"
 bandit = "^1.8.0"
 
 
