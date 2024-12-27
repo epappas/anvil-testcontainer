@@ -28,6 +28,7 @@ Example usage:
 
 import logging
 import time
+import enum
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Union
 
@@ -44,6 +45,13 @@ from .validation import (
     sanitize_command,
     validate_environment_vars,
 )
+
+
+class ContainerState(enum.Enum):
+    RUNNING = "running"
+    STARTING = "starting"
+    ERROR = "error"
+    STOPPED = "stopped"
 
 
 @dataclass(frozen=True)
@@ -106,6 +114,10 @@ class AnvilContainer:
 
         self._container = self._create_container()
         self._web3: Optional[Web3] = None
+        self._state = ContainerState.STOPPED
+
+        # TODO: Implement self-running status
+        # self_runnning_status =
 
     def _create_container(self) -> DockerContainer:
         """Create and configure the Docker container securely."""
@@ -297,34 +309,57 @@ class AnvilContainer:
         3. Web3 connection is established
         """
         self.log.info("Starting Anvil container")
-        self._container.start()
+        self._state = ContainerState.STARTING
 
-        # Wait for endpoint
-        start_time = time.time()
-        while True:
-            try:
-                if self.verify_health():
-                    self.log.info("Anvil container ready")
-                    return
-            except requests.ConnectionError:
+        try:
+            self._container.start()
+            start_time = time.time()
+            consecutive_failures = 0
+            max_failures = 10
+
+            while True:
+                try:
+                    if self.verify_health():
+                        consecutive_failures = 0  # Reset on success
+                        self._state = ContainerState.RUNNING
+                        self.log.info("Anvil container ready")
+                        return
+                    else:
+                        consecutive_failures += 1
+                except requests.ConnectionError:
+                    consecutive_failures += 1
+
+                if consecutive_failures >= max_failures:
+                    self._state = ContainerState.ERROR
+                    raise TimeoutError("Container health check failed")
+
                 if time.time() - start_time > self.config.timeout:
+                    self._state = ContainerState.ERROR
                     raise TimeoutError("Anvil endpoint not ready")
-            time.sleep(1)
+
+                time.sleep(1)
+        except Exception as e:
+            self._state = ContainerState.ERROR
+            raise
 
     def stop(self) -> None:
         """
         Stop the container and cleanup resources.
 
-        This method ensures:
-        1. Container is stopped
-        2. Resources are released
-        3. Web3 connection is closed
+        Raises:
+            RuntimeError: If container is already stopped
         """
+        if self._state == ContainerState.STOPPED:
+            self._state = ContainerState.ERROR
+            raise RuntimeError("Cannot stop a container that is already stopped")
+
         try:
             self._container.stop()
             self._web3 = None  # Clear cached Web3 instance
+            self._state = ContainerState.STOPPED
             self.log.info("Anvil container stopped")
         except Exception as e:
+            self._state = ContainerState.ERROR
             self.log.error(f"Error stopping container: {e}")
             raise
 
@@ -366,6 +401,10 @@ class AnvilContainer:
         # Implement the contract interaction using Web3.py
         # Placeholder for actual implementation
         self.log.warning("grant_market_substrates method needs implementation")
+
+    def get_state(self) -> ContainerState:
+        """Get current container state."""
+        return self._state
 
     def __enter__(self) -> "AnvilContainer":
         """Start container when entering context."""
