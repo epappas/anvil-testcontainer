@@ -48,7 +48,7 @@ Advanced usage:
 """
 
 # Version information
-__version__ = "0.1.5"
+__version__ = "0.1.6"
 __author__ = "Evangelos Pappas <epappas@evalonlabs.com>"
 __license__ = "MIT"
 
