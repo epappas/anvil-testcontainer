@@ -16,11 +16,11 @@ requests = "^2.31.0"
 docker = "^7.1.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3.3"
+pytest = ">=8.3.3,<10.0.0"
 pytest-cov = "^6.0.0"
 pytest-mock = "^3.0.0"
 pytest-xdist = "^3.0.0"
-black = "^24.10.0"
+black = ">=24.10,<27.0"
 pylint = "^3.3.3"
 python-dotenv = "^1.0.1"
 pytest-black = "^0.6.0"
